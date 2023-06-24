@@ -52,8 +52,8 @@ class BinaryClassificationPipeline(MLPipeline):
         results = []
         # if there is no datasets, refactorings, and models to run, just stop
         if not self._datasets or\
-            not self._refactorings or\
-                not self._models_to_run:
+                not self._refactorings or\
+                    not self._models_to_run:
             return
 
         for refactoring in self._refactorings:
@@ -83,8 +83,7 @@ class BinaryClassificationPipeline(MLPipeline):
                         "industry", refactoring, False, scaler,
                         projects=val_proj)
                     if x_val is None:
-                        log("Skip val set %s for refactoring type: %s" %
-                            (val_proj[0], refactoring.name()))
+                        log(f"Skip val set {val_proj[0]} for refactoring type: {refactoring.name()}")
                         continue
                     x_val, y_val = shuffle(x_val, y_val, random_state=SEED)
 
@@ -101,13 +100,14 @@ class BinaryClassificationPipeline(MLPipeline):
                         # val if any refactorings were found for the given
                         # refactoring type
                         if x_val is None:
-                            log("Skip val set %s for refactoring type: %s" %
-                                (validation_dataset, refactoring.name()))
+                            log(
+                                f"Skip val set {validation_dataset} for refactoring type: {refactoring.name()}"
+                            )
                             continue
                         x_val, y_val = shuffle(x_val, y_val, random_state=SEED)
                         x_val_list.append(x_val)
                         y_val_list.append(y_val)
-                if len(x_val_list) == 0:
+                if not x_val_list:
                     log("Skip model building for refactoring type: " +
                         refactoring.name())
                     continue
@@ -127,7 +127,6 @@ class BinaryClassificationPipeline(MLPipeline):
                         y_train,
                         y_val_list,
                         dataset_names))
-            # 2.) random percentage train/ val split
             else:
                 x, y, scaler = retrieve_labelled_instances(
                     DATASETS, refactoring, True)
@@ -180,7 +179,7 @@ class BinaryClassificationPipeline(MLPipeline):
         refactoring_name = refactoring.name()
         for model in self._models_to_run:
             try:
-                log("\nBuilding Model {}".format(model.name()))
+                log(f"\nBuilding Model {model.name()}")
                 self._start_time()
                 production_model, trained_model = self._run_single_model(
                     model, X, y, x_train, y_train, val_names, x_val_list,

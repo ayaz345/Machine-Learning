@@ -13,7 +13,8 @@ class LogisticRegressionRefactoringModel(SupervisedMLRefactoringModel):
     def params_to_tune(self):
         return {
             "max_iter": [100, 500, 1000, 2000, 5000, 10000],
-            "C": [uniform(0.01, 100) for i in range(0, 5)]}
+            "C": [uniform(0.01, 100) for _ in range(0, 5)],
+        }
 
     def model(self, best_params=None):
         if best_params is not None:

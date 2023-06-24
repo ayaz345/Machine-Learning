@@ -26,7 +26,9 @@ for dataset in DATASETS + VALIDATION_DATASETS:
         for k in [15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100]:
             log(f"---- non refactored instances with k {k} for {level} for dataset: {dataset}")
             non_refactored = execute_query(get_level_stable(int(level), k, dataset))
-            log(str(len(non_refactored)) + " non-refactored instances were found for level: " + str(level))
+            log(
+                f"{len(non_refactored)} non-refactored instances were found for level: {str(level)}"
+            )
 
         log(f"-- {level} refactoring types with count for dataset: {dataset}")
         refactorings = execute_query(get_level_refactorings_count(int(level), dataset))
@@ -36,6 +38,6 @@ for dataset in DATASETS + VALIDATION_DATASETS:
             execute_query(get_level_refactorings(int(level), refactoring_name, dataset))
 
 
-log('Cache warm-up took %s seconds.' % (time.time() - start_time))
+log(f'Cache warm-up took {time.time() - start_time} seconds.')
 log_close()
 close_connection()

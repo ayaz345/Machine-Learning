@@ -28,33 +28,16 @@ instanceReferences = ["classMetrics_id",
 
 # maps table names onto their instance keys and their fields
 tableMap = {
-    commitMetaData: (
-        commitMetaData + "_id",
-        COMMIT_METADATA_FIELDS),
-    methodMetrics: (
-        methodMetrics + "s_id",
-        METHOD_METRICS_FIELDS),
-    fieldMetrics: (
-        fieldMetrics + "s_id",
-        FIELD_METRICS_FIELDS),
-    variableMetrics: (
-        variableMetrics + "s_id",
-        VARIABLE_METRICS_FIELDS),
-    processMetrics: (
-        processMetrics + "_id",
-        PROCESS_METRICS_FIELDS),
-    classMetrics: (
-        classMetrics + "s_id",
-        CLASS_METRICS_Fields),
-    project: (
-        project + "_id",
-        PROJECT_FIELDS),
-    refactoringCommits: (
-        "id",
-        REFACTORING_COMMIT_FIELDS),
-    stableCommits: (
-        "id",
-        STABLE_COMMIT_FIELDS)}
+    commitMetaData: (f"{commitMetaData}_id", COMMIT_METADATA_FIELDS),
+    methodMetrics: (f"{methodMetrics}s_id", METHOD_METRICS_FIELDS),
+    fieldMetrics: (f"{fieldMetrics}s_id", FIELD_METRICS_FIELDS),
+    variableMetrics: (f"{variableMetrics}s_id", VARIABLE_METRICS_FIELDS),
+    processMetrics: (f"{processMetrics}_id", PROCESS_METRICS_FIELDS),
+    classMetrics: (f"{classMetrics}s_id", CLASS_METRICS_Fields),
+    project: (f"{project}_id", PROJECT_FIELDS),
+    refactoringCommits: ("id", REFACTORING_COMMIT_FIELDS),
+    stableCommits: ("id", STABLE_COMMIT_FIELDS),
+}
 # endregion
 
 
@@ -63,10 +46,7 @@ tableMap = {
 def join_table(instance_name: str, table_name: str) -> str:
     join_collumn = tableMap[table_name][0]
 
-    return " INNER JOIN " + table_name + \
-           " ON " + instance_name + "." + \
-           join_collumn[0].lower() + join_collumn[1:] + \
-        " = " + table_name + ".id"
+    return f" INNER JOIN {table_name} ON {instance_name}.{join_collumn[0].lower()}{join_collumn[1:]} = {table_name}.id"
 
 
 def get_metrics_level(level: int):
@@ -104,7 +84,7 @@ def __stable_level_filter(level: int):
     Parameters:
         level (int):   get the instances for this level
     """
-    if level == 1 or level == 5:
+    if level in {1, 5}:
         return f"{stableCommits}.`level` = 1"
     else:
         return f"{stableCommits}.`level` = {level}"
@@ -165,7 +145,7 @@ def get_instance_fields(
             required_tables += join_table(instance_name, table_name)
 
         for field_name in field_names:
-            required_fields += table_name + "." + field_name + ", "
+            required_fields += f"{table_name}.{field_name}, "
     if len(datasets) > 0 and f"{project}" not in required_tables:
         required_tables += join_table(instance_name, project)
     # remove the last chars because it is either a ", " or an " AND "
@@ -190,7 +170,7 @@ def get_instance_fields(
     if sql.endswith(' WHERE '):
         sql = sql[:-7]
     if len(order) > 8:
-        sql += " " + order
+        sql += f" {order}"
     return sql
 # endregion
 
@@ -223,7 +203,7 @@ def get_level_refactorings(
     """
     # only select valid refactorings from the database, if refactorings are
     # selected
-    refactoring_condition: str = f"{refactoringCommits}.level = {str(level)} AND {valid_refactorings_filter(refactoringCommits)} AND {file_type_filter(refactoringCommits)}"
+    refactoring_condition: str = f"{refactoringCommits}.level = {level} AND {valid_refactorings_filter(refactoringCommits)} AND {file_type_filter(refactoringCommits)}"
     # only select the specified refactoring type from the database
     if m_refactoring != "":
         refactoring_condition += f" AND {refactoringCommits}.refactoring = \"{m_refactoring}\""
@@ -258,7 +238,7 @@ def get_level_stable(
     # selected
     stable_condition: str = f"{stableCommits}.commitThreshold = {commit_threshold} AND {__stable_level_filter(level)} AND {file_type_filter(stableCommits)}"
 
-    if len(conditions) > 0:
+    if conditions != "":
         stable_condition += f" AND {conditions} AND {methodMetrics}.methodLoc > 5"
     return get_instance_fields(stableCommits,
                                [(stableCommits,
@@ -280,7 +260,7 @@ def file_type_filter(instance_name: str) -> str:
         (instance_name): name of the instance table to filter, either RefactoringCommit or StableCommit
     """
     if FILE_TYPE != FileType.test_and_production.value:
-        return f"{instance_name}.isTest = " + str(FILE_TYPE)
+        return f"{instance_name}.isTest = {str(FILE_TYPE)}"
     else:
         return ""
 
@@ -306,10 +286,18 @@ def get_level_refactorings_count(level: int, dataset: str = "") -> str:
         level (int):               get the refactoring instances for this level
         dataset (str) (optional):  filter for these specific projects
     """
-    return f"SELECT refactoring, count(*) FROM (" + \
-           get_instance_fields(refactoringCommits, [(refactoringCommits, ["refactoring"])],
-                               f"{refactoringCommits}.level = {str(level)}", dataset) + \
-           f" AND {valid_refactorings_filter(refactoringCommits)} AND {file_type_filter(refactoringCommits)}) t group by refactoring order by count(*) desc"
+    return (
+        (
+            "SELECT refactoring, count(*) FROM ("
+            + get_instance_fields(
+                refactoringCommits,
+                [(refactoringCommits, ["refactoring"])],
+                f"{refactoringCommits}.level = {level}",
+                dataset,
+            )
+        )
+        + f" AND {valid_refactorings_filter(refactoringCommits)} AND {file_type_filter(refactoringCommits)}) t group by refactoring order by count(*) desc"
+    )
 
 
 def get_all_level_refactorings(level: int, dataset: str = "") -> str:
