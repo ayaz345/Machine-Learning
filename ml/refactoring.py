@@ -76,7 +76,8 @@ def build_refactorings(selected_level: Level):
             for commit_threshold in LEVEL_Stable_Thresholds_MAP[level]:
                 all_refactorings += [LowLevelRefactoring(
                     refactoring, level, commit_threshold)]
-    log(f"Built refactoring objects for\
-         {str(len(all_refactorings))} refactoring types.")
+    log(
+        f"Built refactoring objects for\\n                #         {len(all_refactorings)} refactoring types."
+    )
 
     return all_refactorings

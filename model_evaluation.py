@@ -16,8 +16,7 @@ DATASET = "github"
 
 
 def find_path(pattern, file_extension, directory):
-    matches = glob.glob(f"{directory}{pattern}*.{file_extension}")
-    if len(matches) > 0:
+    if matches := glob.glob(f"{directory}{pattern}*.{file_extension}"):
         return matches[0]
     return None
 

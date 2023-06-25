@@ -172,19 +172,18 @@ class TrainedRefactoringMLModel:
 
         # coefficients is nested in a list so we get the first element.
         if hasattr(model, "coef_"):
-            coefficients = {feature: coef for feature,
-                            coef in zip(self._feature_names, model.coef_[0])}
-            coefficients_sorted = {k: v for k, v in sorted(
-                coefficients.items(), key=lambda item: item[1])}
+            coefficients = dict(zip(self._feature_names, model.coef_[0]))
+            coefficients_sorted = dict(
+                sorted(coefficients.items(), key=lambda item: item[1])
+            )
             metadata["coefficients"] = coefficients_sorted
         elif hasattr(model, "feature_importances_"):
-            feature_importances = {
-                feature: importance for feature,
-                importance in zip(
-                    self._feature_names,
-                    model.feature_importances_)}
-            feature_importances_sorted = {k: v for k, v in sorted(
-                feature_importances.items(), key=lambda item: item[1])}
+            feature_importances = dict(
+                zip(self._feature_names, model.feature_importances_)
+            )
+            feature_importances_sorted = dict(
+                sorted(feature_importances.items(), key=lambda item: item[1])
+            )
             metadata["feature_importances"] = feature_importances_sorted
 
         return metadata
@@ -260,14 +259,17 @@ class TrainedRefactoringMLModel:
                 x, y) for name, x, y in zip(
                 val_sets_names, val_sets_x_list, val_sets_y_list)}
 
-        means = {}
-        for to_calculate_mean_of in [
-            'f1_score',
-            'precision',
-            'recall_score',
-                'accuracy_score']:
-            means[f'mean_{to_calculate_mean_of}'] = self._calculate_mean(
-                val_names_results, to_calculate_mean_of)
-        val_names_results.update(means)
+        means = {
+            f'mean_{to_calculate_mean_of}': self._calculate_mean(
+                val_names_results, to_calculate_mean_of
+            )
+            for to_calculate_mean_of in [
+                'f1_score',
+                'precision',
+                'recall_score',
+                'accuracy_score',
+            ]
+        }
+        val_names_results |= means
 
         return val_names_results

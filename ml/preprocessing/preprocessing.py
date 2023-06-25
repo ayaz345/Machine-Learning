@@ -79,10 +79,12 @@ def retrieve_labelled_instances(
         return None, None, None
     # test if any refactorings were found for the given refactoring type
 
-    log("refactoring instances (after dropping NA)s: {}".format(
-        refactored_instances.shape[0]))
-    log("non-refactoring instances (after dropping NA)s: {}".format(
-        non_refactored_instances.shape[0]))
+    log(
+        f"refactoring instances (after dropping NA)s: {refactored_instances.shape[0]}"
+    )
+    log(
+        f"non-refactoring instances (after dropping NA)s: {non_refactored_instances.shape[0]}"
+    )
 
     assert non_refactored_instances.shape[0] > 0, \
         "Found no non-refactoring instances for level: " + refactoring.level()
@@ -102,10 +104,12 @@ def retrieve_labelled_instances(
 
     refactored_instances = refactored_instances.drop_duplicates()
     non_refactored_instances = non_refactored_instances.drop_duplicates()
-    log("refactoring instances (after dropping duplicates)s: {}".format(
-        refactored_instances.shape[0]))
-    log("non-refactoring instances (after dropping duplicates)s: {}".format(
-        non_refactored_instances.shape[0]))
+    log(
+        f"refactoring instances (after dropping duplicates)s: {refactored_instances.shape[0]}"
+    )
+    log(
+        f"non-refactoring instances (after dropping duplicates)s: {non_refactored_instances.shape[0]}"
+    )
     # now, combine both datasets (with both TRUE and FALSE predictions)
     if non_refactored_instances.shape[1] != refactored_instances.shape[1]:
         raise ImportError("Number of columns differ from both datasets.")
@@ -122,15 +126,17 @@ def retrieve_labelled_instances(
     # authorship metrics, which are not in the feature set
     if DROP_FAULTY_PROCESS_AND_AUTHORSHIP_METRICS and \
             not DROP_PROCESS_AND_AUTHORSHIP_METRICS:
-        log("Instance count before dropping faulty process metrics: {}".format(
-            len(merged_dataset.index)))
+        log(
+            f"Instance count before dropping faulty process metrics: {len(merged_dataset.index)}"
+        )
         metrics = [
             metric for metric in PROCESS_AND_AUTHORSHIP_METRICS
             if metric in merged_dataset.columns.values]
         query = " and ".join(["%s != -1" % metric for metric in metrics])
         merged_dataset = merged_dataset.query(query)
-        log("Instance count after dropping faulty process metrics: {}".format(
-            len(merged_dataset.index)))
+        log(
+            f"Instance count after dropping faulty process metrics: {len(merged_dataset.index)}"
+        )
 
     # separate the x from the y (as required by the scikit-learn API)
     y = merged_dataset["prediction"]
@@ -152,7 +158,7 @@ def retrieve_labelled_instances(
     # apply some scaling to speed up the algorithm
     if SCALE_DATASET and scaler is None:
         x, scaler = perform_fit_scaling(x)
-    elif SCALE_DATASET and scaler is not None:
+    elif SCALE_DATASET:
         x = perform_scaling(x, scaler)
 
     log(f"Got {x.shape[0]} instances with {x.shape[1]}\

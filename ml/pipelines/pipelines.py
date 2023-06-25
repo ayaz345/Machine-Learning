@@ -26,16 +26,15 @@ class MLPipeline:
 
     def _finish_time(self, model, refactoring):
         finish_hour = now()
-        log("Finished at %s" % finish_hour)
-        log(("TIME,%s,%s,%s,%s" % (refactoring.name(),
-                                   model.name(),
-                                   self._start_datetime,
-                                   finish_hour)))
+        log(f"Finished at {finish_hour}")
+        log(
+            f"TIME,{refactoring.name()},{model.name()},{self._start_datetime},{finish_hour}"
+        )
 
     def _start_time(self):
         self._count_execution()
         self._start_hour = now()
-        log("Started at %s" % self._start_hour)
+        log(f"Started at {self._start_hour}")
 
     def _total_number_of_executions(self):
         return len(self._models_to_run) * \
@@ -43,8 +42,9 @@ class MLPipeline:
 
     def _count_execution(self):
         self._current_execution_number = self._current_execution_number + 1
-        log("Execution: {}/{}".format(self._current_execution_number,
-                                      self._total_number_of_executions()))
+        log(
+            f"Execution: {self._current_execution_number}/{self._total_number_of_executions()}"
+        )
 
     def datasets_str(self) -> str:
         return "-".join(self._datasets)

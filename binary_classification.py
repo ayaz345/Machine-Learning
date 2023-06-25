@@ -31,9 +31,7 @@ def main():
 
     pipeline = BinaryClassificationPipeline(
         models, refactorings, DATASETS)
-    results = pipeline.run()
-
-    return results
+    return pipeline.run()
 
 
 if __name__ == "__main__":

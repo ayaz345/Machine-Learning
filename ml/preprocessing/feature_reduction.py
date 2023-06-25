@@ -62,8 +62,7 @@ def perform_feature_reduction(estimator, X, y, allowed_features=None):
                  as a replacement for feature reduction.")
             X = feature_selection_rfecv(SVR(kernel="linear"), X, y)
 
-    # enforce the specified feature set
-    elif allowed_features is not None:
+    else:
         drop_list = [
             column for column in X.columns.values
             if column not in allowed_features

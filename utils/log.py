@@ -22,7 +22,7 @@ def log_config():
 
 def log_init(log_name: str = ""):
     global _f
-    if len(log_name) > 0:
+    if log_name != "":
         Path(path.dirname(log_name)).mkdir(parents=True, exist_ok=True)
         _f = open(log_name, "w+")
     else:

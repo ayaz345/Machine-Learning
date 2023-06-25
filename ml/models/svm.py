@@ -11,7 +11,7 @@ class LinearSVMRefactoringModel(SupervisedMLRefactoringModel):
         return False
 
     def params_to_tune(self):
-        C = [1.0] + [uniform(0.01, 10) for i in range(0, 5)]
+        C = [1.0] + [uniform(0.01, 10) for _ in range(0, 5)]
         return {"C": C,
                 "penalty": ["l1", "l2"],
                 "loss": ["hinge", "squared_hinge"],
@@ -35,11 +35,13 @@ class NonLinearSVMRefactoringModel(SupervisedMLRefactoringModel):
         return False
 
     def params_to_tune(self):
-        return {"C": [uniform(0.01, 10) for i in range(0, 4)],
-                "kernel": ["poly", "rbf", "sigmoid"],
-                "degree": [2, 3, 5, 7, 10],
-                "gamma": [uniform(0.01, 10) for i in range(0, 4)],
-                "decision_function_shape": ["ovo", "ovr"]}
+        return {
+            "C": [uniform(0.01, 10) for _ in range(0, 4)],
+            "kernel": ["poly", "rbf", "sigmoid"],
+            "degree": [2, 3, 5, 7, 10],
+            "gamma": [uniform(0.01, 10) for _ in range(0, 4)],
+            "decision_function_shape": ["ovo", "ovr"],
+        }
 
     def model(self, best_params=None):
         if best_params is not None:
